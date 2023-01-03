@@ -1,5 +1,11 @@
 # facialRecognition
 
+(Needs tweaks on recognition math for better accuracy)
+FaceRecognition Class has encode function that calls from faceData folder
+  folder should be in same path as main.py
+  faceData should contain images of stored faces
+  Ommitted for privacy reasons
+
 Python FR project
 
 Setup:
