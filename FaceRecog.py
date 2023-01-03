@@ -64,7 +64,7 @@ class FaceRecognition:
                 for face_encoding in self.face_encodings:
                     matches = face_recognition.compare_faces(
                         self.known_face_encodings, face_encoding)
-                    name = 'Unkown'
+                    name = 'Unknown'
                     confidence = 'Unknown'
 
                     face_distances = face_recognition.face_distance(
@@ -75,4 +75,27 @@ class FaceRecognition:
                         name = self.known_face_names[best_match_index]
                         confidence = face_confidence(
                             face_distances[best_match_index])
+
+                    self.face_names.append(f'{name} ({confidence})')
+
             self.process_current_frame = not self.process_current_frame
+
+            for(top, right, bottom, left), name in zip(self.face_locations, self.face_names):
+                top *= 4
+                right *= 4
+                bottom *= 4
+                left *= 4
+
+                cv2.rectangle(frame, (left, top),
+                              (right, bottom), (0, 255, 0), 2)
+                cv2.rectangle(frame, (left, bottom-35),
+                              (right, bottom), (0, 255, 0), cv2.FILLED)
+                cv2.putText(frame, name, (left+6, bottom-6),
+                            cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
+
+            cv2.imshow("Face Recognition", frame)
+            if cv2.waitKey(1) == ord('q'):
+                break
+
+        video_capture.release()
+        cv2.destroyAllWindows()
