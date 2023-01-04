@@ -4,9 +4,10 @@ import face_recognition
 import cv2
 import numpy as np
 import math
+import json
 
 
-def face_confidence(face_distance, face_match_threshold=0.6):
+def face_confidence(face_distance, face_match_threshold=0.5):
     range = (1.0 - face_match_threshold)
     linear_value = (1.0 - face_distance) / (range * 2.0)
 
@@ -49,6 +50,7 @@ class FaceRecognition:
         while True:
             # ret false if no frames to process
             ret, frame = video_capture.read()
+            taken = False
 
             if self.process_current_frame:
                 small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
@@ -77,6 +79,25 @@ class FaceRecognition:
                             face_distances[best_match_index])
 
                     self.face_names.append(f'{name} ({confidence})')
+                    # If unknown face found: capture and store in folder
+                    if (name == 'Unknown'):
+                        fil = open('userStore.json')
+                        data = json.load(fil)
+                        fil.close()
+
+                        img_name = 'person_{}.jpg'.format(
+                            data['users'])
+                        path = 'faceData/'
+                        cv2.imwrite(os.path.join(path, img_name), frame)
+
+                        data['users'] += 1
+
+                        fil = open('userStore.json', 'w+')
+                        fil.write(json.dumps(data))
+                        fil.close()
+                        # re-encodes all faces when new face detected and stored
+                        # needs optimization
+                        self.encode_faces()
 
             self.process_current_frame = not self.process_current_frame
 
